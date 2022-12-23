@@ -3,29 +3,36 @@ import { ref, computed } from "vue";
 import socksGreenImage from "./assets/images/socks_green.jpeg";
 import socksBlueImage from "./assets/images/socks_blue.jpeg";
 
+const selectedVariant = ref(0);
 const product = ref("Socks");
 const brand = ref("Vue Mastery");
-const image = ref(socksGreenImage);
-const inStock = ref(true);
 
 const details = ref(["50% cotton", "30% wool", "20% polyester"]);
 const variants = ref([
-  { id: 2234, color: "green", image: socksGreenImage },
-  { id: 2235, color: "blue", image: socksBlueImage },
+  { id: 2234, color: "green", image: socksGreenImage, quantity: 50 },
+  { id: 2235, color: "blue", image: socksBlueImage, quantity: 0},
 ]);
 
 const cart = ref(0);
 
 const title = computed(() => {
   return `${brand.value} - ${product.value}`;
-})
+});
+
+const image = computed(() => {
+  return variants.value[selectedVariant.value].image;
+});
+
+const inStock = computed(() => {
+  return variants.value[selectedVariant.value].quantity > 0;
+});
 
 const addToCart = () => {
   cart.value += 1;
 };
 
-const updateImage = (variantImage: string) => {
-  image.value = variantImage;
+const updateVariant = (index: number) => {
+  selectedVariant.value = index;
 };
 </script>
 
@@ -40,18 +47,18 @@ const updateImage = (variantImage: string) => {
         <img v-bind:src="image" />
       </div>
       <div class="product-info">
-        <h1>{{ product }}</h1>
+        <h1>{{ title }}</h1>
         <p v-if="inStock">In Stock</p>
         <p v-else>Out of Stock</p>
         <ul>
           <li v-html="detail" v-for="detail in details"></li>
         </ul>
         <div
-          v-for="variant in variants"
+          v-for="(variant, index) in variants"
           :key="variant.id"
           class="color-circle"
           :style="{ backgroundColor: variant.color }"
-          v-on:mouseover="updateImage(variant.image)"
+          @mouseover="updateVariant(index)"
         ></div>
         <button
           class="button"
